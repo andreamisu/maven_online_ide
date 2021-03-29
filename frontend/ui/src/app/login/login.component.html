@@ -1,0 +1,7 @@
+<h2>Welcome to Group 5-2's Online IDE!</h2>
+<h3>Login Page</h3>
+<div>
+  <button mat-raised-button color="primary" *ngIf="!(authService.authenticated | async)" (click)="authService.login()">Login with Gitlab (LRZ) </button>
+  <button mat-raised-button color="primary" *ngIf="authService.authenticated | async" (click)="authService.logout()">Logout</button>
+  <a routerLink="/projects"><button mat-raised-button color="accent" *ngIf="authService.authenticated | async">Go to Projects</button></a>
+</div>

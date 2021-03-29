@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="darkmode" />
+        <module name="api-gateway" />
+        <module name="project" />
+        <module name="compiler" />
+        <module name="frontend" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="api-gateway" target="15" />
+      <module name="compiler" target="14" />
+      <module name="darkmode" target="14" />
+      <module name="frontend" target="14" />
+      <module name="project" target="14" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
+      <module name="compiler" options="-parameters" />
+      <module name="darkmode" options="-parameters" />
+      <module name="frontend" options="-parameters" />
+      <module name="project" options="-parameters" />
+    </option>
+  </component>
+</project>

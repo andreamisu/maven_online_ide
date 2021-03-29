@@ -1,0 +1,14 @@
+# Spring Datasource (DataSourceAutoConfiguration & DataSourceProperties)
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/my_db?user=admin&password=test
+    username: "admin"
+    password: "test"
+    name: "my_db"
+  jpa:
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+  config:
+    activate:
+      on-profile: prod

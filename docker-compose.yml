@@ -1,0 +1,88 @@
+version: "3.7"
+
+services:
+  service-registry:
+    build: 
+      dockerfile: Dockerfile
+      context: ./service-registry
+    image: service-registry:latest
+    restart: unless-stopped
+    ports:
+      - 8761:8761
+
+  api-gateway:
+    build:
+      dockerfile: Dockerfile
+      context: ./api-gateway
+    image: api-gateway:latest
+    restart: on-failure
+    depends_on:
+      - service-registry
+      - compiler
+      - frontend
+      - project
+      - dark-mode
+    environment: 
+      - EUREKA_SERVER=http://service-registry:8761/eureka
+    ports:
+      - 8000:8000
+
+  compiler:
+    build:
+      dockerfile: Dockerfile
+      context: ./compiler
+    image: compiler:latest
+    restart: on-failure
+    environment: 
+      - EUREKA_SERVER=http://service-registry:8761/eureka
+    depends_on:
+      - service-registry
+    ports:
+      - 8081:8081
+
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    image: frontend:latest
+    restart: on-failure
+    depends_on:
+      - service-registry
+    environment: 
+      - EUREKA_SERVER=http://service-registry:8761/eureka
+    ports:
+      - 8082:8082
+
+  project:
+    build:
+      dockerfile: Dockerfile
+      context: ./project
+    image: project:latest
+    restart: on-failure
+    depends_on:
+      - db
+      - service-registry
+    environment:
+      - JDBC_URL=jdbc:postgresql://db:5432/project_db?user=project_user&password=project_pw
+      - EUREKA_SERVER=http://service-registry:8761/eureka
+    ports:
+      - 8080:8080
+  db:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_DB=project_db
+      - POSTGRES_PASSWORD=project_pw
+      - POSTGRES_USER=project_user
+
+  dark-mode:
+    build:
+      dockerfile: Dockerfile
+      context: ./dark-mode/maven
+    image: maven:latest
+    environment: 
+      - EUREKA_SERVER=http://service-registry:8761/eureka
+    depends_on:
+      - service-registry
+    restart: on-failure
+    ports:
+      - 8083:8083

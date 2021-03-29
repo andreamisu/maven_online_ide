@@ -1,0 +1,23 @@
+# Spring Datasource (DataSourceAutoConfiguration & DataSourceProperties)
+spring:
+  application:
+    name: project-service
+  profiles:
+    active: dev
+  datasource:
+    jpa:
+      properties:
+        hibernate:
+            ddl-auto: "update"
+            jdbc:
+              lob:
+                non_contextual_creation: "true"
+database:
+  port: 5432
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
+server:
+  port: ${PORT:8080}
+

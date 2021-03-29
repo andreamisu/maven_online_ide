@@ -1,0 +1,3 @@
+ USE THIS COMMAND HERE TO COMPILE STATIC FILES TO MAVEN APPLICATION:
+ 
+ ng build --prod --outputPath=../src/main/resources/static/ --base-href=/ui/

@@ -1,0 +1,69 @@
+.mat-drawer-container{
+  height: 100%;
+}
+
+.output-result{
+  white-space: pre-wrap;
+}
+
+ngx-monaco-editor{
+  height: 50vh;
+}
+
+.mat-sidenav {
+  min-width: 30vh;
+}
+
+.header-ide{
+  margin: 10px;
+}
+.mat-button-base{
+  margin: 0 10px 10px 0;
+}
+
+.file-table{
+  padding: 30px 0 30px 0;
+}
+.file-container{
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.active{
+  background-color: #3f51b5;
+}
+
+.white{
+  color: white;
+}
+
+.sidebar-header{
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+  padding: 10px;
+}
+
+.footer-sidebar{
+  margin: 40px 0 0 0;
+  display: flex;
+  justify-content: center;
+}
+
+.create-sourcefile{
+  width: 100%;
+}
+
+.output-result{
+  color: rgb(143, 0, 0);
+
+}
+.compilable{
+    color: green;
+}
+
+.mat-tab-body-wrapper{
+  padding: 20px;
+}

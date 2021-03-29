@@ -1,0 +1,63 @@
+
+<mat-sidenav-container class="example-container">
+  <mat-sidenav mode="side" opened>
+    <div class="sidebar-header">
+      <h2>{{project != null ? project.name : 'loading...'}}</h2>
+      <button mat-raised-button color="primary" (click)="backHomepage()">Back</button>
+      <button mat-raised-button color="secondary"*ngIf="authService.authenticated | async" (click)="authService.logout()">Logout</button>
+    </div>
+    <div *ngFor="let sourcefile of sourcefiles" (click)="openSourcefile(sourcefile)" >
+      <div class="file-container" [ngClass]="{'active': sourcefile === this.selectedSourcefile}" >
+        <div class="file-table " [ngClass]="{'white': sourcefile === this.selectedSourcefile}" >
+          {{ sourcefile.filename }}
+          <mat-menu #appMenu="matMenu">
+            <ng-template matMenuContent>
+              <button mat-menu-item (click)="renameFile(sourcefile)">Rename</button>
+              <button mat-menu-item (click)="deleteFile(sourcefile)">Delete</button>
+            </ng-template>
+          </mat-menu>
+
+          <button mat-icon-button [matMenuTriggerFor]="appMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+      </div>
+        <mat-divider></mat-divider>
+    </div>
+    <div class="footer-sidebar">
+      <button mat-raised-button (click)="openDialog()" class="create-sourcefile">New File</button>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="header-ide">
+      <button mat-raised-button (click)="saveCode()">Save</button>
+      <button mat-raised-button color="primary" [disabled]="!canCompile()" (click)="compileSourceCode()">Compile</button>
+    </div>
+    <div class="compiler-output">
+      <div *ngIf="this.selectedSourcefile!=null">
+        <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code"></ngx-monaco-editor>
+          <mat-tab-group>
+            <mat-tab label="Output">
+              <div *ngIf="this.compilerOutput != null">
+                <div class="output-result" [ngClass]="{'compilable': this.compilerOutput.compilable}">
+                  {{this.compilerOutput.stderr != null && this.compilerOutput.stderr != "null" ? this.compilerOutput.stderr : ''}}
+                </div>
+                <div class="output-result" [ngClass]="{'compilable': this.compilerOutput.compilable}">
+                  {{this.compilerOutput.stdout != null && this.compilerOutput.stdout != "null"? this.compilerOutput.stdout : '' }}
+                </div>
+                <div class="output-result" [ngClass]="{'compilable': this.compilerOutput.compilable}">
+                  {{this.compilerOutput.compilable ? "the file has been compiled correctly." : ""}}
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+      </div>
+      <ng-template #elseBlock>
+          select a file.
+      </ng-template>
+  </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+

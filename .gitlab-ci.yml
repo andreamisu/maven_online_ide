@@ -1,0 +1,258 @@
+# This template uses jdk8 for verifying and deploying images
+# Pipeline retrigger
+image: maven:3.6.3-openjdk-15
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dspring-boot.run.profiles=prod,postgreSQL"
+
+cache:
+  paths:
+    - .m2/repository
+
+before_script:
+  - cd $CI_PROJECT_DIR
+
+after_script:
+  - cd $CI_PROJECT_DIR
+
+# Stages (by default run in sequence)
+stages:
+  - build
+  - test
+  - package
+  - publish
+  - deploy
+
+build_api-gateway:
+  stage: build
+  script: 
+    - cd api-gateway
+    - mvn clean compile
+
+build_FE:
+  stage: build
+  script: 
+    - cd frontend
+    - mvn clean compile
+
+build_comp:
+  stage: build
+  script: 
+    - cd compiler
+    - mvn clean compile
+
+build_proj:
+  stage: build
+  script: 
+    - cd project
+    - mvn clean compile
+
+build_darkmode:
+  stage: build
+  script: 
+    - cd dark-mode
+    - cd maven
+    - mvn clean compile
+
+build_eureka:
+  stage: build
+  script: 
+    - cd service-registry
+    - mvn clean compile
+
+test_FE:
+  stage: test
+  script: 
+    - cd frontend
+    - mvn test
+
+test_comp:
+ stage: test
+ script: 
+   - microdnf install gcc
+   - cd compiler
+   - mvn test
+
+test_proj:
+  stage: test
+  script: 
+    - cd project
+    - mvn test
+
+test_darkmode:
+  stage: test
+  script: 
+    - cd dark-mode
+    - cd maven
+    - mvn test
+
+test_api_gateway:
+  stage: test
+  script: 
+    - cd api-gateway
+    - mvn test
+
+test_service_registry:
+  stage: test
+  script: 
+    - cd service-registry
+    - mvn test
+    
+frontend_package:
+  stage: package
+  script: cd frontend/ && mvn package -DskipTests=true
+  artifacts:
+    paths:
+      - frontend/target/*.jar
+      
+project_package:
+  stage: package
+  script: cd project/ && mvn package -DskipTests=true
+  artifacts:
+    paths:
+      - project/target/*.jar
+      
+compiler_package:
+  stage: package
+  script: cd compiler/ && mvn package -DskipTests=true
+  artifacts:
+    paths:
+      - compiler/target/*.jar
+      
+darkmode_package:
+  stage: package
+  script: cd dark-mode/ && cd maven/ && mvn package -DskipTests=true
+  artifacts:
+    paths:
+      - dark-mode/maven/target/*.jar
+
+api_gateway_package:
+  stage: package
+  script: cd api-gateway/ && mvn package -DskipTests=true
+  artifacts:
+    paths:
+      - api-gateway/target/*.jar
+    
+service_registry_package:
+  stage: package
+  script: cd service-registry/ && mvn package -DskipTests=true
+  artifacts:
+    paths:
+      - service-registry/target/*.jar
+    
+frontend_publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:18-dind
+  script:
+    - cd frontend
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_NAME:latest || true
+    - docker build --tag $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/frontend
+
+project_publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:18-dind
+  script:
+    - cd project
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_NAME:latest || true
+    - docker build --tag $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/project
+
+compiler_publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:18-dind
+  script:
+    - cd compiler
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_NAME:latest || true
+    - docker build --tag $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/compiler
+
+darkmode_publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:18-dind
+  script:
+    - cd dark-mode
+    - cd maven
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_NAME:latest || true
+    - docker build --tag $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/darkmode
+
+api_gateway_publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:18-dind
+  script:
+    - cd api-gateway
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_NAME:latest || true
+    - docker build --tag $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/api-gateway
+
+service_registry_publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:18-dind
+  script:
+    - cd service-registry
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_NAME:latest || true
+    - docker build --tag $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/service-registry
+
+deploy:gcp:
+  stage: deploy
+  image: ubuntu:18.04
+  script: 
+    - apt-get update -y 
+    - apt-get install openssh-client -y
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - echo -e "Host *\n\tStrictHostKeyChecking no \n\n" > ~/.ssh/config
+    - scp -r docker-compose.yml $SSH_HOST:~/
+    - ssh $SSH_HOST "sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh $SSH_HOST "sudo docker-compose -f docker-compose.yml pull && sudo docker-compose -f docker-compose.yml up --force-recreate -d "
+  variables:
+    SSH_HOST: andrea.misuraca@34.70.170.204
+
