@@ -5,8 +5,8 @@ A load-balanced Eureka server Online compiler, made with Maven Springboot Micros
 ![Apache Maven](https://img.shields.io/badge/Apache%20Maven-brightgreen)
 ![Netflix Eureka](https://img.shields.io/badge/Netflix%20Eureka-red)
 ![Springboot](https://img.shields.io/badge/Springboot-orange)
-![Angular](https://img.shields.io/badge/Angular-blu)
-![Docker](https://img.shields.io/badge/Docker-lightblu)
+![Angular](https://img.shields.io/badge/Angular-blue)
+![Docker](https://img.shields.io/badge/Docker-informational)
 
 ## Overview
 
